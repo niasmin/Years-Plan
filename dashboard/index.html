@@ -91,6 +91,23 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
 .filters button:active,.chip:active,.btn:active,.mtools button:active{transform:translateY(2px);box-shadow:inset 0 1px 3px rgba(0,0,0,.25)}
 .filters button.on,.chip.on{color:#F6EBCB;border-color:#163A2F;text-shadow:0 -1px 0 rgba(0,0,0,.5);background:linear-gradient(#24584A,#2F6B57);box-shadow:inset 0 2px 4px rgba(0,0,0,.45),0 1px 0 rgba(255,255,255,.7);transform:translateY(2px)}
 .btn{border-radius:7px}
+.pbtn{flex:0 0 auto;font:inherit;font-size:13px;font-weight:600;cursor:pointer;color:#3B2A08;padding:4px 12px;border-radius:7px;border:1px solid #8A6526;background:linear-gradient(#F7E7B8,#CFA24F);box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 2px 0 #7A5A20,0 3px 5px rgba(0,0,0,.35);text-shadow:0 1px 0 rgba(255,255,255,.5)}
+.pbtn:active{transform:translateY(2px);box-shadow:inset 0 1px 3px rgba(0,0,0,.35)}
+.pbtn[disabled]{opacity:.6;cursor:wait}
+.hright{display:flex;gap:8px;align-items:center}
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:20;background:#2B2416;color:#F6EBCB;padding:9px 16px;border-radius:8px;font-size:14px;box-shadow:0 6px 16px rgba(0,0,0,.35);display:none}
+.pdf{background:#fff;color:#222;padding:0}
+.pdf,.pdf *{box-shadow:none!important;text-shadow:none!important;background-image:none!important}
+.pdf section{display:block!important}
+.pdf .card,.pdf table,.pdf th,.pdf td,.pdf .qcol,.pdf .item,.pdf details,.pdf .doc,.pdf #chart,.pdf #leadChart{background:#fff!important}
+.pdf th{background:#EEE7D6!important}.pdf .item.key{background:#FFF3B0!important}
+.pdf .q{border:0!important;padding:0;background:#fff!important}.pdf .qcol::before{display:none}
+.pdf .filters,.pdf #kf,.pdf .mtools,.pdf #reset{display:none!important}
+.pdf .val{display:inline-block;min-width:56px;min-height:1.4em;border:1px solid #BBB;border-radius:3px;padding:0 5px;margin:1px 0;font-size:12px;background:#fff}
+.pdf .val.vt{background:#FFF7CC}.pdf .val.good{background:#DDF0E1}.pdf .val.bad{background:#F8DCDC}.pdf .val.cb{border:0;min-width:0;font-size:15px;padding:0}
+.pdf .scroll{overflow:visible}.pdf #kt{font-size:10.5px}.pdf #kt td,.pdf #kt th{padding:3px 4px}.pdf #kt td:first-child{min-width:150px}.pdf #kt .val{display:block;min-width:0;width:100%;font-size:10px;padding:0 3px}.pdf #kt .note{font-size:9.5px}
+@media print{#kt{font-size:10.5px}#kt td,#kt th{padding:3px 4px}#kt td:first-child{min-width:150px}#kt input.kp{width:100%!important;font-size:10px;padding:1px 3px}.scroll{overflow:visible}}
+.pdfhead{display:flex;justify-content:space-between;border-bottom:2px solid #1F4D3E;padding:0 0 6px;margin:0 0 12px;font-size:12px;color:#444}
 .filters select{font:inherit;font-size:13px;padding:5px 30px 5px 12px;border:1px solid #B9A77E;border-radius:99px;min-height:0}
 .org{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 .org .card h4{margin:0 0 6px;font-size:15px;color:var(--brand)}
@@ -133,7 +150,20 @@ input.kp.bad{background:var(--no) right 5px center/12px no-repeat,linear-gradien
 details.jd{padding:10px 14px;margin:6px 0}details.jd ul{margin:4px 0 10px}
 h4.jdg{margin:18px 0 6px;color:var(--brand)}table.jdh{margin:8px 0;box-shadow:none}table.jdh td:nth-child(odd){color:var(--mute);width:150px}
 @media(max-width:800px){.q,.org{grid-template-columns:1fr 1fr}}
-@media print{body,main{background:#fff!important;box-shadow:none!important;border:0}header,main,.mtools,#totop{display:none!important}#modal{position:static;display:block!important;background:none;padding:0}#mbox{max-width:none;padding:0;box-shadow:none;background:#fff}.doc{break-inside:auto;border:0;padding:0}}
+@media print{
+ @page{margin:12mm}
+ body,main,.card,table,th,td,details,.qcol,.q,.item,.doc,#chart,#leadChart{background:#fff!important;box-shadow:none!important;text-shadow:none!important}
+ header,#totop,.mtools,.filters,#kf,#tf,#reset,#toast{display:none!important}
+ main{border:0!important;max-width:none;padding:0;margin:0}
+ #modal{display:none!important}
+ body.pdoc main{display:none!important}
+ body.pdoc #modal{position:static;display:block!important;background:none;padding:0}
+ body.pdoc #mbox{max-width:none;padding:0;box-shadow:none;background:#fff}
+ .doc{break-inside:auto;border:0;padding:0}
+ tr,.card,.item,h3{break-inside:avoid}
+ .q{border:0!important;padding:0;background:#fff!important}.qcol::before{display:none}
+ input,select{box-shadow:none!important;background:#fff!important}
+}
 
 /* ---------- mobile ---------- */
 @media(max-width:640px){
@@ -141,7 +171,7 @@ h4.jdg{margin:18px 0 6px;color:var(--brand)}table.jdh{margin:8px 0;box-shadow:no
  header{padding:8px 0 0}
  header>*{padding-left:12px;padding-right:12px}
  header h1{font-size:16px}header p{display:none}
- .hrow{margin-bottom:6px}.sync{font-size:11px;padding:2px 8px}
+ .hrow{margin-bottom:6px}.sync{font-size:11px;padding:2px 8px}.pbtn{font-size:12px;padding:3px 9px}
  nav{gap:3px;padding-right:12px}
  nav button{padding:8px 12px 7px;font-size:13px}
  main{padding:16px 12px 70px;border-radius:0;border-left:0;border-right:0;margin-bottom:0}
@@ -202,7 +232,7 @@ h4.jdg{margin:18px 0 6px;color:var(--brand)}table.jdh{margin:8px 0;box-shadow:no
 </head>
 <body>
 <header>
-  <div class="hrow"><h1>CMNH แผนงานปี 2570 (2027)</h1><span class="sync" id="sync" title="สถานะการบันทึกข้อมูล">เก็บในเครื่องนี้</span></div>
+  <div class="hrow"><h1>CMNH แผนงานปี 2570 (2027)</h1><span class="hright"><button class="pbtn" id="pbtn" title="พิมพ์หรือบันทึก PDF ของแท็บที่เปิดอยู่">🖨 พิมพ์หน้านี้</button><span class="sync" id="sync" title="สถานะการบันทึกข้อมูล">เก็บในเครื่องนี้</span></span></div>
   <p>บจก. ซีเอ็มเอ็นเอช 2012 · ข้อมูล ณ 9 พ.ย. 2569 · ตัวเลขจาก CMNH_แผนการเงิน_2570-71.xlsx</p>
   <nav id="nav"></nav>
 </header>
@@ -810,7 +840,7 @@ function openItem(id,toDoc){
 }
 $('#mclose').onclick=()=>$('#modal').classList.remove('on');
 $('#modal').onclick=e=>{if(e.target.id==='modal')$('#modal').classList.remove('on')};
-$('#mprint').onclick=()=>window.print();
+$('#mprint').onclick=()=>printNode($('#mbody'),($('#mbody h2')||{}).textContent||'เอกสาร',false,true);
 document.addEventListener('keydown',e=>{if(e.key==='Escape')$('#modal').classList.remove('on')});
 
 buildCtrl();drawTasks();run();show('sum');
@@ -862,7 +892,39 @@ function setHH(){document.documentElement.style.setProperty('--hh',document.quer
 addEventListener('resize',setHH);setHH();
 document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>b.scrollIntoView({block:'nearest',inline:'center'})));
 // window.print is blocked inside the claude.ai frame
-if(window.self!==window.top)$('#mprint').style.display='none';
+
+// ---------- print: real print dialog when opened as a file; PDF via downloads inside claude.ai (print is blocked there)
+const INFRAME=window.self!==window.top;let dl=null;
+(async()=>{try{if(window.claude&&claude.use)dl=await claude.use('downloads')}catch(e){}})();
+document.body.insertAdjacentHTML('beforeend','<div id="toast" role="status"></div>');
+function toast(t,ms){const e=$('#toast');e.textContent=t;e.style.display='block';clearTimeout(e._t);if(ms!==0)e._t=setTimeout(()=>e.style.display='none',ms||3500)}
+function freeze(src,dst){const a=src.querySelectorAll('input,select'),b=dst.querySelectorAll('input,select');
+  b.forEach((el,i)=>{const o=a[i];let t,c='val';
+    if(o.type==='checkbox'){t=o.checked?'☑':'☐';c+=' cb'}else if(o.tagName==='SELECT')t=(o.options[o.selectedIndex]||{}).text||'';
+    else if(o.type==='range')t=o.value+'%';else t=o.value||'';
+    if(o.classList.contains('kt'))c+=' vt';if(o.classList.contains('good'))c+=' good';if(o.classList.contains('bad'))c+=' bad';
+    const sp=document.createElement('span');sp.className=c;sp.textContent=t||' ';el.replaceWith(sp)})}
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fname=t=>('CMNH 2570 - '+t).replace(/[\\/:*?"<>|]/g,' ').replace(/\s+/g,' ').trim().slice(0,90)+' (พิมพ์).html';
+function printHTML(node,title,landscape){
+  const c=node.cloneNode(true);freeze(node,c);c.classList.add('on');c.querySelectorAll('.mtools,#kf,#tf,.filters,#reset').forEach(e=>e.remove());
+  const css=document.querySelector('style').textContent;
+  return '<!DOCTYPE html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>'+esc('CMNH 2570 · '+title)+'</title><style>'+css
+   +'\n@page{size:A4 '+(landscape?'landscape':'portrait')+';margin:12mm}body{background:#fff!important}main.pdfmain{max-width:'+(landscape?'1100px':'820px')+';margin:0 auto;padding:16px;background:#fff!important;border:0;box-shadow:none}'
+   +'.pbar{display:flex;gap:10px;align-items:center;justify-content:space-between;margin:0 0 14px}.pbar button{font:inherit;font-size:15px;padding:8px 18px;border-radius:8px;border:1px solid #1F4D3E;background:#1F4D3E;color:#fff;cursor:pointer}@media print{.pbar{display:none}}'
+   +'</style></head><body class="pdf"><main class="pdfmain"><div class="pbar"><span class="note">กดพิมพ์ แล้วเลือกเครื่องพิมพ์ หรือ "บันทึกเป็น PDF"</span><button onclick="print()">🖨 พิมพ์</button></div>'
+   +'<div class="pdfhead"><b>CMNH แผนงานปี 2570 · '+esc(title)+'</b><span>พิมพ์ '+new Date().toLocaleDateString('th-TH')+'</span></div>'+c.outerHTML
+   +'</main><script>addEventListener("load",function(){setTimeout(function(){print()},400)})<\/script></body></html>';
+}
+async function printNode(node,title,landscape,isDoc){
+  if(!INFRAME){if(isDoc)document.body.classList.add('pdoc');window.print();setTimeout(()=>document.body.classList.remove('pdoc'),500);return}
+  if(!dl){toast('พิมพ์จากหน้านี้ไม่ได้ ลองเปิดลิงก์ใน claude.ai หรือเปิดไฟล์ในเครื่อง');return}
+  const btns=[$('#pbtn'),$('#mprint')];btns.forEach(x=>x.disabled=true);
+  try{await dl.save({filename:fname(title),data:printHTML(node,title,landscape)});toast('บันทึกแล้ว เปิดไฟล์ หน้าต่างพิมพ์จะขึ้นเอง',5000)}
+  catch(e){toast(e&&e.code==='declined'?'ยกเลิกการบันทึก':e&&e.code==='rate_limited'?'มีหน้าต่างบันทึกเปิดอยู่ ลองใหม่อีกครั้ง':'บันทึกไม่สำเร็จ ลองใหม่อีกครั้ง')}
+  finally{btns.forEach(x=>x.disabled=false)}
+}
+$('#pbtn').onclick=()=>{const sec=document.querySelector('section.on'),t=(tabs.find(x=>x[0]===sec.id)||[0,'หน้า'])[1];printNode(sec,t,['kpi','plan','tasks','fin'].includes(sec.id),false)};
 </script>
 </body>
 </html>

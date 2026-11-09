@@ -1,0 +1,54 @@
+{
+ "v": 4,
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-11-09T10:08:56Z"
+ },
+ "lists": "css",
+ "title": "CMNH แผนงานปี 2570 — คุยกับ CEO และทีม",
+ "order": [
+  "cover",
+  "ask",
+  "year",
+  "quarters",
+  "org",
+  "ceo",
+  "hosp",
+  "cash",
+  "options",
+  "sales",
+  "risks",
+  "next",
+  "close"
+ ],
+ "sections": {
+  "s1": {
+   "description": "เปิดด้วยมติที่ต้องการ",
+   "start": "cover"
+  },
+  "s2": {
+   "description": "แผนงานและโครงสร้าง",
+   "start": "year"
+  },
+  "s3": {
+   "description": "ตัวเลขโรงพยาบาลและทางเลือก",
+   "start": "hosp"
+  },
+  "s4": {
+   "description": "การขาย ความเสี่ยง และก้าวต่อไป",
+   "start": "sales"
+  }
+ },
+ "cover": "cover",
+ "faces": {
+  "prompt": {
+   "family": "Prompt",
+   "href": "https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap"
+  },
+  "noto-sans-thai": {
+   "family": "Noto Sans Thai",
+   "href": "https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400..700&display=swap"
+  }
+ },
+ "designSystems": []
+}

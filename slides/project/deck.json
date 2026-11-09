@@ -2,7 +2,7 @@
  "v": 4,
  "createdOnFiles": {
   "v": 1,
-  "at": "2026-11-09T10:08:56Z"
+  "at": "2026-11-09T14:53:00Z"
  },
  "lists": "css",
  "title": "CMNH แผนงานปี 2570 — คุยกับ CEO และทีม",
@@ -13,6 +13,7 @@
   "quarters",
   "org",
   "ceo",
+  "clinic",
   "hosp",
   "cash",
   "options",
@@ -31,8 +32,8 @@
    "start": "year"
   },
   "s3": {
-   "description": "ตัวเลขโรงพยาบาลและทางเลือก",
-   "start": "hosp"
+   "description": "คลินิก ตัวเลขโรงพยาบาล และทางเลือก",
+   "start": "clinic"
   },
   "s4": {
    "description": "การขาย ความเสี่ยง และก้าวต่อไป",

@@ -56,6 +56,7 @@ svg text{font-family:inherit}
 .filters button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
 select.st{font:inherit;font-size:13px;padding:2px 4px;border-radius:6px;border:1px solid var(--line)}
 input.kp{width:72px;padding:3px 5px;border:1px solid var(--line);border-radius:5px;font:inherit;font-size:13px}
+input.kp.kt{display:block;width:108px;background:#FFF8E1;margin-bottom:3px}input.kp.ka{display:block;width:108px}input.kp.good{background:#DFF3E4;border-color:#3A7D68}input.kp.bad{background:#FBE1E1;border-color:#C0392B}.kpass{font-weight:600;white-space:nowrap}
 .scroll{overflow-x:auto}
 .item{cursor:pointer;transition:background .15s}.item:hover{background:#EEF5F2}
 .item .dc{display:block;font-size:11px;color:var(--brand2);font-weight:400;margin-top:2px}
@@ -75,7 +76,7 @@ input.kp{width:72px;padding:3px 5px;border:1px solid var(--line);border-radius:5
 .doclist{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
 .doclist .card{cursor:pointer}.doclist .card:hover{border-color:var(--brand2)}
 @media print{body{background:#fff}header,main,.mtools{display:none!important}#modal{position:static;display:block!important;background:none;padding:0}#mbox{max-width:none;padding:0}.doc{break-inside:auto;border:0;padding:0}}
-#kt td:first-child{min-width:210px}#kt td:nth-child(4) input{width:160px}
+#kt td:first-child{min-width:210px}
 .chip{border:1px solid #CBD5D1;background:#fff;border-radius:999px;padding:4px 12px;margin:0 6px 6px 0;cursor:pointer;font:inherit;font-size:13px}.chip.on{background:#245B4A;color:#fff;border-color:#245B4A}
 .jdbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:8px 0}.jdbar input{padding:6px 10px;border:1px solid #CBD5D1;border-radius:8px;font:inherit;min-width:220px}
 details.jd{background:#fff;border:1px solid #E2E8E5;border-radius:10px;padding:10px 14px;margin:6px 0}details.jd summary{cursor:pointer}details.jd ul{margin:4px 0 10px}
@@ -115,11 +116,11 @@ h4.jdg{margin:18px 0 6px;color:#245B4A}table.jdh{margin:8px 0}table.jdh td:nth-c
  #kt td{display:block;border:0!important;padding:0!important;min-width:0!important;font-size:12px}
  #kt td:nth-child(1){grid-column:1/-1;font-weight:600;font-size:15px}
  #kt td:nth-child(2),#kt td:nth-child(3){grid-column:span 2;color:var(--mute)}
- #kt td:nth-child(4){grid-column:1/-1}
+ #kt td:nth-child(4){grid-column:span 4}
  #kt td::before{content:attr(data-label);display:block;color:var(--mute);font-size:11px}
  #kt td:nth-child(1)::before,#kt td:nth-child(2)::before,#kt td:nth-child(3)::before{display:none}
+ #kt td.kpass:empty{display:none}
  #kt td input{width:100%!important;box-sizing:border-box;font-size:14px;padding:6px}
- #kt td:nth-child(4) input{width:100%!important}
  /* modal full screen */
  #modal{padding:0}
  #mbox{border-radius:0;min-height:100vh;padding:56px 14px 40px}
@@ -275,7 +276,8 @@ h4.jdg{margin:18px 0 6px;color:#245B4A}table.jdh{margin:8px 0}table.jdh td:nth-c
 
 <section id="kpi">
   <h2>KPI ปี 2570</h2>
-  <p class="lead">กรอกเป้าและผลจริงรายเดือนได้ (เก็บในเบราว์เซอร์เครื่องนี้เท่านั้น ไฟล์หลักคือชีต "ติดตาม KPI 2570") ส่งผลทุกวันที่ 5 ประชุมผู้บริหารเดือนละครั้ง</p>
+  <p class="lead">ช่องบน (พื้นเหลือง) คือเป้ารายเดือนที่กรอกไว้ให้ตามชีต "ติดตาม KPI 2570" ช่องล่างคือผลจริง กรอกทุกวันที่ 5 ของเดือนถัดไป ผลจะเป็นสีเขียวเมื่อถึงเป้า สีแดงเมื่อไม่ถึง ประชุมผู้บริหารเดือนละครั้ง</p>
+  <p class="note">เป้าที่ผูกกับแผนการเงิน (อัตราเข้าพัก ค่าใช้จ่าย เงินสด lead รายได้คลินิก) เปลี่ยนตามสมมติฐานในแท็บการเงิน · ช่องว่างคือยังไม่วัดเดือนนั้นหรือรอค่าฐาน 2569 · ที่กรอกเก็บในเบราว์เซอร์เครื่องนี้เท่านั้น ไฟล์หลักคือ Excel</p>
   <div class="scroll"><table id="kt"></table></div>
 </section>
 
@@ -391,6 +393,7 @@ function run(){
    +'<tr><td>ผลปี 2570</td><td>'+fm(ro.y1)+'</td><td>'+fm(rn.y1)+'</td></tr>'
    +'<tr><td>ถ้าคลินิกหน้า รพ. มีรายได้เท่าทุน</td><td>–</td><td>'+fm(-rbk.peak)+'</td></tr>'
    +'<tr><td>ตลาดต่างประเทศ (ยังเลือกได้)</td><td>A: เริ่มขายในสวิส ก.ค. 70</td><td>B: ทดลองขาย Q4 ขายเต็มปี 2571</td></tr>';
+  kpiRender();
   // summary page
   $('#sumStats').innerHTML=stat('ค่าใช้จ่าย รพ.+Villa ตอนเต็ม','4.53 ล้าน/เดือน (รวมค่าผ่อน)')+stat('คลินิกหน้า รพ. ต้องมีรายได้','≥302,000/เดือน','bad')+stat('รายได้ OPD+แพ็กเกจ รพ. ที่ต้องมี','≈1.04 ล้าน/เดือน','bad')+stat('เงินที่ต้องเตรียมสูงสุด',fm(-s.peak),'bad')+stat('กำไรรายเดือนเริ่ม',s.be?mlabel(s.be.i):'เกิน 24 เดือน')+stat('พนักงาน รพ.+Villa','118 คน')+stat('ผู้สนใจที่ต้องหาปี 2570',s.l1+' ราย')+'';
 }
@@ -551,10 +554,53 @@ $('#jdopen').onclick=()=>{const d=$('#jdall').querySelectorAll('details');const 
 jdRender();
 
 // ---------- KPI
-const KPI=[['งานในตารางงานเสร็จตามกำหนด','CEO','%','≥ 90'],['อัตราเข้าพัก สาขา 1–4','COO','%','≥ 85'],['อัตราเข้าพัก TQL','COO','%','≥ 80'],['อัตราเข้าพัก IPD (หลังเปิด)','COO','%','ต.ค. 15 · ธ.ค. 35'],['อัตราเข้าพัก Villa (หลังเปิด)','COO','%','พ.ย. 15 · ธ.ค. 25'],['ผู้ป่วย OPD คลินิกเวชกรรม','COO','ราย/เดือน','100 → 400'],['พลัดตก / แผลกดทับใหม่','COO','ครั้ง/1,000 วันนอน','≤ 1.0'],['อัตราลาออกพนักงาน','COO + HR','%/เดือน','≤ 2'],['ผู้ใช้ Day Care / Home Care','COO','ราย','+20% จาก ม.ค.'],['รายได้รวมบริษัท','CFO','บาท','เดิม +10% + รพ.ตามแผน'],['ค่าใช้จ่าย รพ. + Villa','CFO','บาท','ไม่เกินแผน'],['ปิดงบ / หนี้ค้าง > 30 วัน','CFO','วันที่ / %','วันที่ 10 / ≤ 5'],['งบก่อสร้าง รพ. ใช้จริงเทียบแผน','CFO','%','≤ 100'],['เงินสดสะสมโครงการ รพ.','CFO','บาท','ไม่ต่ำกว่าแผน'],['lead รพ. + Villa','CMO','ราย','96 ต่อปี'],['อัตราปิดการขาย','CMO','%','≥ 25'],['ความพึงพอใจญาติ / ร้องเรียน','CMO','คะแนน / เรื่อง','≥ 4.5 / ≤ 2'],['ตปท.: ผู้แนะนำสะสม','CMO','ราย','30 ภายใน ธ.ค.'],['ตปท.: lead ต่างชาติ','CMO','ราย','A 25 · B Q4'],['ตปท.: ผู้พักต่างชาติใหม่','CMO','คน','A 3 · B ปี 71'],['ตปท.: พนักงานผ่านอบรมอังกฤษ','COO + HR','%','70 ภายใน ธ.ค.']];
-let kv=store.get('kpi2',{});
-$('#kt').innerHTML='<tr><th>KPI</th><th>สาย</th><th>หน่วย</th><th>เป้า</th>'+MON.map(m=>'<th>'+m+'</th>').join('')+'</tr>'+KPI.map((k,i)=>'<tr><td>'+k[0]+'</td><td>'+k[1]+'</td><td class="note">'+k[2]+'</td>'+['t',...MON.map((_,j)=>j)].map(c=>'<td><input class="kp" data-k="'+i+'-'+c+'" value="'+(kv[i+'-'+c]??(c==='t'?k[3]:''))+'"></td>').join('')+'</tr>').join('');
-$('#kt').querySelectorAll('input').forEach(el=>el.oninput=()=>{kv[el.dataset.k]=el.value;store.set('kpi2',kv)});
+// เป้ารายเดือนตามชีต "ติดตาม KPI 2570" · null = ไม่วัดเดือนนั้น · ตัวที่ลิงก์แผนการเงินคำนวณจาก model(P)
+const Q4=v=>[null,null,v,null,null,v,null,null,v,null,null,v],K12=v=>Array(12).fill(v);
+function kpiList(){
+  const m=model(P).slice(0,12);
+  return [
+  ['งานในตารางงานเสร็จตามกำหนด','CEO','%','↑',Q4(90),'วัดรายไตรมาส'],
+  ['อัตราเข้าพัก สาขา 1–4','COO','%','↑',K12(85),'ปรับตามค่าฐาน 2569'],
+  ['อัตราเข้าพัก TQL','COO','%','↑',K12(80),'เพิ่มเมื่อมีผู้พักต่างชาติ'],
+  ['อัตราเข้าพัก IPD','COO','%','↑',m.map(x=>x.i>=P.ipdOpen?Math.round(x.oi*100):null),'ตามแผนการเงิน (เปิด '+mlabel(P.ipdOpen)+')'],
+  ['อัตราเข้าพัก Villa','COO','%','↑',m.map(x=>x.i>=P.villaOpen?Math.round(x.ov*100):null),'ตามแผนการเงิน (เปิด '+mlabel(P.villaOpen)+')'],
+  ['ผู้ป่วยคลินิก (หน้า รพ. → OPD รพ.)','COO','ราย/เดือน','↑',[40,60,80,100,120,140,160,180,200,300,350,400],'สมมติ ให้ CMO/CFO ยืนยัน'],
+  ['พลัดตกใหม่','COO','ครั้ง/1,000 วันนอน','↓',K12(1),''],
+  ['แผลกดทับใหม่','COO','ครั้ง/1,000 วันนอน','↓',K12(1),''],
+  ['อัตราลาออกพนักงาน','COO + HR','%/เดือน','↓',K12(2),'ราว 24% ต่อปี'],
+  ['ใบอนุญาตวิชาชีพหมดอายุขณะทำงาน','COO + HR','คน','↓',K12(0),'HR เตือนล่วงหน้า 90 วัน'],
+  ['ผู้ใช้ Day Care / Home Care','COO','ราย','↑',K12(null),'รอค่าฐาน ม.ค. แล้วตั้ง +20% ภายใน ธ.ค.'],
+  ['รายได้รวมบริษัท','CFO','บาท','↑',K12(null),'รอตัวเลขธุรกิจเดิม 2569'],
+  ['รายได้คลินิกหน้า รพ.','CFO','บาท','↑',m.map(x=>x.i>=P.clinicOpen&&x.i<P.opdOpen?P.clinicCost:null),'≥ ค่าใช้จ่ายคลินิก (คุ้มทุน)'],
+  ['ค่าใช้จ่ายโครงการ รพ. + Villa','CFO','บาท','↓',m.map(x=>Math.round(x.cost)),'ไม่เกินแผนการเงิน'],
+  ['ปิดงบรายเดือนภายในวันที่','CFO','วันที่','↓',K12(10),'ของเดือนถัดไป'],
+  ['หนี้ค้างชำระเกิน 30 วัน','CFO','% ของรายได้','↓',K12(5),''],
+  ['งบก่อสร้าง รพ. ใช้จริงเทียบแผน','CFO','%','↓',K12(100),'เกิน 5% ต้องขออนุมัติ'],
+  ['เงินสดสะสมโครงการ รพ.','CFO','บาท','↑',m.map(x=>Math.round(x.cum)),'ไม่ต่ำกว่าแผนการเงิน'],
+  ['ผู้สนใจ (lead) รพ. + Villa','CMO','ราย','↑',m.map((x,j)=>j===6?5:j===7?10:j===8?20:(x.lead||null)),'หาก่อนเปิด ก.ค.–ก.ย. แล้วตามแผนการขาย'],
+  ['อัตราปิดการขาย','CMO','%','↑',m.map(x=>x.i>=P.ipdOpen?Math.round(P.conv*100):null),''],
+  ['คะแนนความพึงพอใจญาติ','CMO','คะแนน (5)','↑',Q4(4.5),'วัดรายไตรมาส'],
+  ['เรื่องร้องเรียน','CMO','เรื่อง/เดือน','↓',K12(2),''],
+  ['ตปท.: ผู้แนะนำที่ติดต่อได้ สะสม','CMO','ราย','↑',Q4(null).map((_,j)=>[null,null,3,null,null,10,null,null,20,null,null,30][j]),'ผ่าน Swiss Helping Point'],
+  ['ตปท.: lead ต่างชาติ','CMO','ราย','↑',[null,null,null,null,null,null,2,3,4,5,5,6],'ทาง A · ทาง B ใช้ ต.ค.–ธ.ค. 2–3 ราย/เดือน'],
+  ['ตปท.: ผู้พักต่างชาติใหม่ สะสม','CMO','คน','↑',[null,null,null,null,null,null,null,null,null,null,1,3],'ทาง A · ทาง B เริ่มปี 2571'],
+  ['ตปท.: พนักงาน TQL ผ่านอบรมอังกฤษ','COO + HR','%','↑',[null,null,null,null,null,30,null,null,50,null,null,70],'']];
+}
+const kfmt=v=>v==null||v===''?'':(Math.abs(v)>=1000?fmt(v):String(v));
+const knum=v=>{if(v==null||v==='')return null;const n=parseFloat(String(v).replace(/,/g,''));return isNaN(n)?null:n};
+let kv=store.get('kpi3',{});
+function kpiRender(){
+  const K=kpiList();
+  $('#kt').innerHTML='<tr><th>KPI</th><th>สาย</th><th>หน่วย</th><th>ผ่าน</th>'+MON.map(m=>'<th>'+m+'</th>').join('')+'</tr>'
+   +K.map((k,i)=>'<tr data-i="'+i+'"><td>'+k[0]+' <span class="note">'+k[3]+(k[5]?' · '+k[5]:'')+'</span></td><td>'+k[1]+'</td><td class="note">'+k[2]+'</td><td class="kpass"></td>'
+   +k[4].map((t,j)=>{const tv=kv[i+'-t'+j]??kfmt(t),av=kv[i+'-a'+j]??'';return '<td><input class="kp kt" data-k="'+i+'-t'+j+'" value="'+tv+'" placeholder="–" title="เป้า"><input class="kp ka" data-k="'+i+'-a'+j+'" value="'+av+'" placeholder="ผล" title="ผล"></td>'}).join('')+'</tr>').join('');
+  const mark=tr=>{const k=K[+tr.dataset.i];let ok=0,n=0;
+    tr.querySelectorAll('input.ka').forEach((el,j)=>{const t=knum(tr.querySelectorAll('input.kt')[j].value),a=knum(el.value);el.classList.remove('good','bad');
+      if(t==null||a==null)return;n++;const pass=k[3]==='↑'?a>=t:a<=t;if(pass)ok++;el.classList.add(pass?'good':'bad')});
+    tr.querySelector('.kpass').textContent=n?ok+'/'+n:''};
+  $('#kt').querySelectorAll('tr[data-i]').forEach(mark);
+  $('#kt').querySelectorAll('input').forEach(el=>el.oninput=()=>{if(el.value==='')delete kv[el.dataset.k];else kv[el.dataset.k]=el.value;store.set('kpi3',kv);mark(el.closest('tr'))});
+}
 
 // ---------- details & documents per quarter item
 const T=(h,rows)=>'<table><tr>'+h.map(x=>'<th>'+x+'</th>').join('')+'</tr>'+rows.map(r=>'<tr>'+r.map(c=>'<td>'+c+'</td>').join('')+'</tr>').join('')+'</table>';

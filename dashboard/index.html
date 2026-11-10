@@ -95,6 +95,7 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
 .pbtn:active{transform:translateY(2px);box-shadow:inset 0 1px 3px rgba(0,0,0,.35)}
 .pbtn[disabled]{opacity:.6;cursor:wait}
 .hright{display:flex;gap:8px;align-items:center}
+#pmenu{position:fixed;z-index:15;display:none;flex-direction:column;min-width:210px;padding:6px;border-radius:9px;background:linear-gradient(#FFFEFA,#F3EBD8);border:1px solid #BFAE87;box-shadow:0 10px 24px rgba(40,25,5,.35)}#pmenu.on{display:flex}#pmenu button{font:inherit;font-size:14px;text-align:left;padding:9px 12px;border:0;border-radius:6px;background:none;cursor:pointer;color:var(--ink)}#pmenu button:hover{background:#EAE0C8}#pmenu small{display:block;color:var(--mute);font-size:12px}
 #toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:20;background:#2B2416;color:#F6EBCB;padding:9px 16px;border-radius:8px;font-size:14px;box-shadow:0 6px 16px rgba(0,0,0,.35);display:none}
 .pdf{background:#fff;color:#222;padding:0}
 .pdf,.pdf *{box-shadow:none!important;text-shadow:none!important;background-image:none!important}
@@ -107,6 +108,7 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
 .pdf .val.vt{background:#FFF7CC}.pdf .val.good{background:#DDF0E1}.pdf .val.bad{background:#F8DCDC}.pdf .val.cb{border:0;min-width:0;font-size:15px;padding:0}
 .pdf .scroll{overflow:visible}.pdf #kt{font-size:10.5px}.pdf #kt td,.pdf #kt th{padding:3px 4px}.pdf #kt td:first-child{min-width:150px}.pdf #kt .val{display:block;min-width:0;width:100%;font-size:10px;padding:0 3px}.pdf #kt .note{font-size:9.5px}
 @media print{#kt{font-size:10.5px}#kt td,#kt th{padding:3px 4px}#kt td:first-child{min-width:150px}#kt input.kp{width:100%!important;font-size:10px;padding:1px 3px}.scroll{overflow:visible}}
+.pdf .doc{overflow:hidden}.pdf .doc table{table-layout:fixed;width:100%}.pdf td .blank{min-width:0;width:100%}.pdf .doc td,.pdf .doc th{word-break:break-word}
 .pdfhead{display:flex;justify-content:space-between;border-bottom:2px solid #1F4D3E;padding:0 0 6px;margin:0 0 12px;font-size:12px;color:#444}
 .filters select{font:inherit;font-size:13px;padding:5px 30px 5px 12px;border:1px solid #B9A77E;border-radius:99px;min-height:0}
 .org{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
@@ -377,7 +379,7 @@ h4.jdg{margin:18px 0 6px;color:var(--brand)}table.jdh{margin:8px 0;box-shadow:no
   <div id="docgrid"></div>
 </section>
 </main>
-<div id="modal"><div id="mbox"><div class="mtools"><button id="mprint">พิมพ์ / PDF</button><button id="mclose">ปิด</button></div><div id="mbody"></div></div></div>
+<div id="modal"><div id="mbox"><div class="mtools"><button id="mprint">พิมพ์ / PDF ▾</button><button id="mclose">ปิด</button></div><div id="mbody"></div></div></div>
 <script>
 const $=s=>document.querySelector(s);
 const fmt=n=>Math.round(n).toLocaleString('en-US');
@@ -840,7 +842,7 @@ function openItem(id,toDoc){
 }
 $('#mclose').onclick=()=>$('#modal').classList.remove('on');
 $('#modal').onclick=e=>{if(e.target.id==='modal')$('#modal').classList.remove('on')};
-$('#mprint').onclick=()=>printNode($('#mbody'),($('#mbody h2')||{}).textContent||'เอกสาร',false,true);
+$('#mprint').onclick=()=>printNode($('#mbody'),($('#mbody h2')||{}).textContent||'เอกสาร',false,true,$('#mprint'));
 document.addEventListener('keydown',e=>{if(e.key==='Escape')$('#modal').classList.remove('on')});
 
 buildCtrl();drawTasks();run();show('sum');
@@ -916,15 +918,54 @@ function printHTML(node,title,landscape){
    +'<div class="pdfhead"><b>CMNH แผนงานปี 2570 · '+esc(title)+'</b><span>พิมพ์ '+new Date().toLocaleDateString('th-TH')+'</span></div>'+c.outerHTML
    +'</main><script>addEventListener("load",function(){setTimeout(function(){print()},400)})<\/script></body></html>';
 }
-async function printNode(node,title,landscape,isDoc){
-  if(!INFRAME){if(isDoc)document.body.classList.add('pdoc');window.print();setTimeout(()=>document.body.classList.remove('pdoc'),500);return}
-  if(!dl){toast('พิมพ์จากหน้านี้ไม่ได้ ลองเปิดลิงก์ใน claude.ai หรือเปิดไฟล์ในเครื่อง');return}
+function loadJS(src,ok){return ok()?Promise.resolve():new Promise((res,rej)=>{const sc=document.createElement('script');sc.src=src;sc.onload=()=>ok()?res():rej(new Error('load'));sc.onerror=rej;document.head.appendChild(sc)})}
+function prepClone(node){const c=node.cloneNode(true);freeze(node,c);c.classList.add('on');c.querySelectorAll('.mtools,#kf,#tf,.filters,#reset,.pbar').forEach(e=>e.remove());return c}
+async function saveFile(name,data){
+  if(dl){await dl.save({filename:name,data});return}
+  if(!INFRAME){const u=URL.createObjectURL(data instanceof Blob?data:new Blob([data],{type:'text/html'}));const a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);return}
+  throw {code:'unavailable'};
+}
+async function buildPDF(node,title,landscape){
+  await loadJS('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',()=>window.jspdf&&window.jspdf.jsPDF);
+  const W=landscape?1080:760,MW=landscape?277:190,MH=landscape?186:273,pageH=Math.floor(MH*W/MW);
+  const box=document.createElement('div');box.className='pdf';
+  box.style.cssText='position:absolute;left:-30000px;top:0;width:'+W+'px;padding:0;background:#fff;color:#222;font-family:'+getComputedStyle(document.body).fontFamily.replace(/"/g,"'")+';font-size:15px;line-height:1.55';
+  box.innerHTML='<div class="pdfhead"><b>CMNH แผนงานปี 2570 · '+esc(title)+'</b><span>พิมพ์ '+new Date().toLocaleDateString('th-TH')+'</span></div>';
+  box.appendChild(prepClone(node));document.body.appendChild(box);
+  try{
+    if(document.fonts)await document.fonts.ready;
+    const H=Math.ceil(box.scrollHeight),top0=box.getBoundingClientRect().top;
+    const blocks=[...box.querySelectorAll('tr,.card,.item,h2,h3,h4,p,li,.stat,.pdfhead,.meta,label,details')].map(e=>{const r=e.getBoundingClientRect();return [r.top-top0,r.bottom-top0]}).filter(r=>r[1]-r[0]<pageH*.8);
+    const cuts=[];let y=0;
+    while(y<H){let end=y+pageH;if(end<H){const cr=blocks.filter(([t,bm])=>t<end&&bm>end&&t>y+pageH*.4).map(r=>r[0]);if(cr.length)end=Math.min(...cr)}cuts.push([y,Math.min(end,H)]);y=end}
+    const css=document.querySelector('style').textContent;
+    const xhtml=new XMLSerializer().serializeToString(box).replace(/left:\s*-30000px/,'left: 0px');
+    const svg='<svg xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+H+'"><foreignObject x="0" y="0" width="'+W+'" height="'+H+'"><div xmlns="http://www.w3.org/1999/xhtml"><style><![CDATA['+css+']]></style>'+xhtml+'</div></foreignObject></svg>';
+    const img=new Image();img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);await img.decode();
+    const pdf=new jspdf.jsPDF({unit:'mm',format:'a4',orientation:landscape?'landscape':'portrait'}),S=2,k=MW/W;
+    cuts.forEach(([a,b],i)=>{const cv=document.createElement('canvas');cv.width=W*S;cv.height=Math.ceil((b-a)*S);const g=cv.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,cv.width,cv.height);g.scale(S,S);g.drawImage(img,0,-a);
+      if(i)pdf.addPage();pdf.addImage(cv.toDataURL('image/jpeg',.9),'JPEG',10,10,MW,(b-a)*k);pdf.setFontSize(8);pdf.setTextColor(120);pdf.text((i+1)+' / '+cuts.length,(landscape?297:210)-10,(landscape?210:297)-6,{align:'right'})});
+    return pdf.output('blob');
+  }finally{box.remove()}
+}
+async function doPrint(kind,node,title,landscape,isDoc){
   const btns=[$('#pbtn'),$('#mprint')];btns.forEach(x=>x.disabled=true);
-  try{await dl.save({filename:fname(title),data:printHTML(node,title,landscape)});toast('บันทึกแล้ว เปิดไฟล์ หน้าต่างพิมพ์จะขึ้นเอง',5000)}
-  catch(e){toast(e&&e.code==='declined'?'ยกเลิกการบันทึก':e&&e.code==='rate_limited'?'มีหน้าต่างบันทึกเปิดอยู่ ลองใหม่อีกครั้ง':'บันทึกไม่สำเร็จ ลองใหม่อีกครั้ง')}
+  try{
+    if(kind==='pdf'){toast('กำลังสร้าง PDF…',0);let blob;
+      try{blob=await buildPDF(node,title,landscape)}catch(e){console.error('pdf',e&&e.name,e&&e.message);toast('เครื่องนี้สร้าง PDF ไม่ได้ ใช้ "พิมพ์" แล้วเลือกบันทึกเป็น PDF แทน',6000);return}
+      await saveFile(fname(title).replace(' (พิมพ์).html','.pdf'),blob);toast('บันทึก PDF แล้ว');return}
+    if(!INFRAME){if(isDoc)document.body.classList.add('pdoc');window.print();setTimeout(()=>document.body.classList.remove('pdoc'),500);return}
+    await saveFile(fname(title),printHTML(node,title,landscape));toast('บันทึกแล้ว เปิดไฟล์ หน้าต่างพิมพ์จะขึ้นเอง',5000);
+  }catch(e){toast(e&&e.code==='declined'?'ยกเลิกการบันทึก':e&&e.code==='rate_limited'?'มีหน้าต่างบันทึกเปิดอยู่ ลองใหม่อีกครั้ง':e&&e.code==='unavailable'?'บันทึกไฟล์จากหน้านี้ไม่ได้':'ไม่สำเร็จ ลองใหม่อีกครั้ง')}
   finally{btns.forEach(x=>x.disabled=false)}
 }
-$('#pbtn').onclick=()=>{const sec=document.querySelector('section.on'),t=(tabs.find(x=>x[0]===sec.id)||[0,'หน้า'])[1];printNode(sec,t,['kpi','plan','tasks','fin'].includes(sec.id),false)};
+document.body.insertAdjacentHTML('beforeend','<div id="pmenu" role="menu"><button data-k="pdf" role="menuitem">📄 บันทึกเป็น PDF<small>ได้ไฟล์ PDF เก็บไว้หรือส่งต่อ</small></button><button data-k="print" role="menuitem">🖨 พิมพ์<small>'+(INFRAME?'บันทึกไฟล์พร้อมพิมพ์ เปิดแล้วหน้าต่างพิมพ์ขึ้นเอง':'เปิดหน้าต่างพิมพ์ของเบราว์เซอร์')+'</small></button></div>');
+let pjob=null;
+function printNode(node,title,landscape,isDoc,btn){pjob=[node,title,landscape,isDoc];const m=$('#pmenu'),r=(btn||$('#pbtn')).getBoundingClientRect();m.classList.add('on');
+  m.style.top=Math.min(r.bottom+6,innerHeight-m.offsetHeight-8)+'px';m.style.left=Math.max(8,Math.min(r.right-m.offsetWidth,innerWidth-m.offsetWidth-8))+'px';}
+$('#pmenu').querySelectorAll('button').forEach(b=>b.onclick=()=>{$('#pmenu').classList.remove('on');if(pjob)doPrint(b.dataset.k,...pjob)});
+document.addEventListener('click',e=>{if(!e.target.closest('#pmenu,#pbtn,#mprint'))$('#pmenu').classList.remove('on')});
+$('#pbtn').onclick=()=>{const sec=document.querySelector('section.on'),t=(tabs.find(x=>x[0]===sec.id)||[0,'หน้า'])[1];printNode(sec,t,['kpi','plan','tasks','fin'].includes(sec.id),false,$('#pbtn'))};
 </script>
 </body>
 </html>

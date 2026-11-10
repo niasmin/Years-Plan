@@ -91,6 +91,7 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
 .filters button:active,.chip:active,.btn:active,.mtools button:active{transform:translateY(2px);box-shadow:inset 0 1px 3px rgba(0,0,0,.25)}
 .filters button.on,.chip.on{color:#F6EBCB;border-color:#163A2F;text-shadow:0 -1px 0 rgba(0,0,0,.5);background:linear-gradient(#24584A,#2F6B57);box-shadow:inset 0 2px 4px rgba(0,0,0,.45),0 1px 0 rgba(255,255,255,.7);transform:translateY(2px)}
 .btn{border-radius:7px}
+.scn{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}.scn .filters{margin:0}.cgh{grid-column:1/-1;display:flex;align-items:center;gap:10px;margin:6px 0 -2px;font-weight:700;color:#20392F}.cgh::after{content:"";flex:1;height:1px;background:#D8CBAE}.cgh:first-child{margin-top:0}.ttag{display:inline-block;font-size:11px;font-weight:600;padding:0 6px;border-radius:4px;margin-left:6px;vertical-align:1px}.ttag.real{color:#1E6B3A;border:1px solid #3A7D58}.ttag.asm{color:#9A4A0B;border:1px solid #B8742F}.ttag.plan{color:#36506B;border:1px solid #6B86A3}.stat .sub{font-size:12px;color:var(--mute);margin-top:2px;line-height:1.4}#scnTable td:first-child{cursor:pointer;color:#20392F;text-decoration:underline dotted}
 .pbtn{flex:0 0 auto;font:inherit;font-size:13px;font-weight:600;cursor:pointer;color:#3B2A08;padding:4px 12px;border-radius:7px;border:1px solid #8A6526;background:linear-gradient(#F7E7B8,#CFA24F);box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 2px 0 #7A5A20,0 3px 5px rgba(0,0,0,.35);text-shadow:0 1px 0 rgba(255,255,255,.5)}
 .pbtn:active{transform:translateY(2px);box-shadow:inset 0 1px 3px rgba(0,0,0,.35)}
 .pbtn[disabled]{opacity:.6;cursor:wait}
@@ -377,12 +378,18 @@ h4.jdg{margin:18px 0 6px;color:var(--brand)}table.jdh{margin:8px 0;box-shadow:no
 
 <section id="fin">
   <h2>การเงิน: ทดลองปรับสมมติฐาน</h2>
-  <p class="lead">ปรับค่าด้านล่างแล้วตัวเลขเปลี่ยนทันที ใช้สูตรเดียวกับไฟล์ Excel ค่าเริ่มต้น = แผนปัจจุบัน</p>
+  <p class="lead">ตัวเลขชุดนี้คือ <b>โครงการคลินิก + รพ. + Villa</b> (ยังไม่รวมธุรกิจเดิม) ใช้สูตรเดียวกับไฟล์ Excel · ค่าที่ปรับเห็นแค่เครื่องนี้ ไม่กระทบคนอื่น</p>
+  <div class="scn"><span class="note">เลือกสถานการณ์:</span><div class="filters" id="scn"></div></div>
+  <p class="note" id="scnNote" style="margin:8px 0 12px"></p>
   <div class="grid g4" id="finStats" style="margin-bottom:14px"></div>
   <div class="card"><div class="ctrl" id="ctrl"></div>
     <p class="note" style="margin:10px 0 0"><button id="reset" class="btn">คืนค่าเริ่มต้น</button></p></div>
   <h3>เงินสดสะสม 24 เดือน</h3>
+  <p class="note" style="margin-top:-4px">เส้นต่ำลง = ใช้เงินมากขึ้น · จุดต่ำสุดของเส้นคือ "เงินที่ต้องเตรียมสูงสุด"</p>
   <div class="card" id="chart"></div>
+  <h3>เทียบสถานการณ์ (คำนวณจากค่าเริ่มต้น)</h3>
+  <p class="note" style="margin-top:-4px">ใช้ตอบคำถาม "ถ้า…จะเป็นอย่างไร" ในห้องประชุม · กดชื่อสถานการณ์เพื่อโหลดค่าขึ้นด้านบน</p>
+  <div class="scroll"><table id="scnTable"></table></div>
   <h3>สรุปรายไตรมาส (บาท)</h3>
   <div class="scroll"><table id="qt"></table></div>
   <h3>ค่าใช้จ่ายตอนเปิดเต็ม (ต่อเดือน)</h3>
@@ -467,13 +474,37 @@ const mlabel=i=>MON[(i-1)%12]+' '+(70+Math.floor((i-1)/12));
 
 // ---------- controls
 const CTRL=[
- ['clinicOpen','เดือนเปิดคลินิกอาคารหน้า รพ.','month'],['clinicRev','รายได้คลินิกหน้า รพ. ต่อเดือน (บาท) — เท่าทุน 302,000','num'],['opdOpen','เดือนย้ายคลินิกเข้า รพ. (OPD)','month'],['ipdOpen','เดือนเปิด IPD','month'],['villaOpen','เดือนเปิด Villa','month'],
- ['tier','ระดับราคา','tier'],['opdRev','รายได้ OPD รพ. ต่อเดือน (บาท) — ขั้นต่ำให้คุ้มตัวเอง 1,100,000','num'],
+ ['clinicOpen','เดือนเปิดคลินิกอาคารหน้า รพ.','month'],['clinicRev','รายได้คลินิกหน้า รพ./เดือน (เท่าทุน 302,000)','num'],['opdOpen','เดือนย้ายคลินิกเข้า รพ. (OPD)','month'],['ipdOpen','เดือนเปิด IPD','month'],['villaOpen','เดือนเปิด Villa','month'],
+ ['tier','ระดับราคา','tier'],['opdRev','รายได้ OPD รพ./เดือน (คุ้มตัวเอง 1,100,000)','num'],
  ['addon','รายได้แพ็กเกจเสริม ต่อผู้พัก/เดือน (บาท)','num'],['loan','ค่าผ่อนธนาคาร ต่อเดือน (บาท)','num'],
  ['rampEnd','อัตราเข้าพักเป้าหมาย (หลัง 12 เดือน)','range'],['conv','อัตราปิดการขาย','pct'],['churn','ผู้พักออก ต่อเดือน','pct']];
+const CGRP=[['เวลา',['clinicOpen','opdOpen','ipdOpen','villaOpen']],['รายได้ (ยังไม่มีประมาณการ ค่าเริ่มต้น = 0)',['clinicRev','opdRev','addon','tier']],['ต้นทุน',['loan']],['การขายและการเข้าพัก',['rampEnd','conv','churn']]];
+const CTAG={clinicOpen:['plan','แผน'],opdOpen:['plan','แผน'],ipdOpen:['asm','รอวันส่งมอบ DG'],villaOpen:['plan','แผน'],clinicRev:['asm','สมมติ'],opdRev:['asm','สมมติ'],addon:['asm','สมมติ'],tier:['real','ราคาจากไฟล์'],loan:['asm','สมมติ 6% 15 ปี'],rampEnd:['asm','สมมติ'],conv:['asm','สมมติ'],churn:['asm','สมมติ']};
+const SCN=[['แย่สุด: รายได้ใหม่ = 0',{},'ค่าเริ่มต้น คลินิก OPD และแพ็กเกจไม่มีรายได้เลย มีแค่ค่าเตียง'],
+ ['คลินิกเท่าทุน',{clinicRev:302000},'คลินิกหน้า รพ. มีรายได้เท่าค่าใช้จ่าย 302,000/เดือน'],
+ ['คลินิก + OPD เท่าทุน',{clinicRev:302000,opdRev:1100000},'คลินิกเท่าทุน และ OPD รพ. มีรายได้คุ้มค่าจ้างและค่าสถานที่ 1,100,000/เดือน'],
+ ['คลินิก + OPD + แพ็กเกจ',{clinicRev:302000,opdRev:1100000,addon:17300},'เพิ่มแพ็กเกจเฉลี่ย 17,300 บาท/ผู้พัก (ราว 1 ใน 5 ซื้อ Post Stroke)'],
+ ['ราคาขายระดับ 3',{tier:3},'รายได้ใหม่ = 0 แต่ใช้ราคาเตียงระดับ 3'],
+ ['รพ. เลื่อนเปิด ธ.ค. 70',{ipdOpen:12,opdOpen:12,villaOpen:13},'IPD และ OPD เปิด ธ.ค. 70 · Villa ม.ค. 71 · รายได้ใหม่ = 0']];
+const SKEYS=['clinicRev','opdRev','addon','tier','ipdOpen','opdOpen','villaOpen'];
+function scnP(o){return Object.assign(JSON.parse(JSON.stringify(DEF)),o)}
+function scnMatch(){return SCN.findIndex(([,o])=>{const q=scnP(o);return SKEYS.every(k=>P[k]===q[k])&&P.loan===DEF.loan&&P.conv===DEF.conv&&P.churn===DEF.churn&&P.ramp[11]===DEF.ramp[11]&&P.clinicOpen===DEF.clinicOpen})}
+function applyScn(i){P=scnP(SCN[i][1]);store.set('P2',P);buildCtrl();run()}
+function drawScn(){const m=scnMatch();
+  $('#scn').innerHTML=SCN.slice(0,4).map(([n],i)=>'<button class="'+(i===m?'on':'')+'" data-i="'+i+'">'+n+'</button>').join('')+(m<0?'<button class="on" disabled>ปรับเอง</button>':'');
+  $('#scn').querySelectorAll('button[data-i]').forEach(b=>b.onclick=()=>applyScn(+b.dataset.i));
+  $('#scnNote').textContent=m>=0?SCN[m][2]:'ค่าที่ปรับเองไม่ตรงกับสถานการณ์สำเร็จรูป · กดสถานการณ์ด้านบนเพื่อกลับ';
+}
+function drawScnTable(){
+  $('#scnTable').innerHTML='<tr><th>สถานการณ์</th><th class="n">เงินที่ต้องเตรียมสูงสุด</th><th class="n">ผลปี 2570</th><th class="n">ผลปี 2571</th><th>เดือนแรกที่มีกำไร</th></tr>'+SCN.map(([n,o],i)=>{const q=scnP(o),r=summary(model(q),q);
+    return '<tr><td data-i="'+i+'">'+n+'</td><td class="n neg">'+fm(-r.peak)+'</td><td class="n '+(r.y1<0?'neg':'pos')+'">'+fm(r.y1)+'</td><td class="n '+(r.y2<0?'neg':'pos')+'">'+fm(r.y2)+'</td><td>'+(r.be?mlabel(r.be.i):'เกิน 24 เดือน')+'</td></tr>'}).join('');
+  $('#scnTable').querySelectorAll('td[data-i]').forEach(td=>td.onclick=()=>{applyScn(+td.dataset.i);window.scrollTo({top:$('#fin').offsetTop-20,behavior:'smooth'})});
+}
 function buildCtrl(){
   const box=$('#ctrl');box.innerHTML='';
-  CTRL.forEach(([k,l,t])=>{
+  const ORDER=CGRP.flatMap(g=>g[1]);
+  CGRP.forEach(([g,ks])=>{const h=document.createElement('div');h.className='cgh';h.textContent=g;box.appendChild(h);
+  CTRL.filter(c=>ks.includes(c[0])).sort((a,b)=>ORDER.indexOf(a[0])-ORDER.indexOf(b[0])).forEach(([k,l,t])=>{
     const w=document.createElement('div');let h='<label>'+l+'</label>';
     if(t==='month'){h+='<select data-k="'+k+'">'+Array.from({length:24},(_,i)=>'<option value="'+(i+1)+'"'+(P[k]==i+1?' selected':'')+'>'+mlabel(i+1)+'</option>').join('')+'</select>'}
     else if(t==='phase'){h+='<select data-k="phase"><option value="0"'+(P.phase==0?' selected':'')+'>A: เปิดเต็ม 2 ห้องตรวจ</option><option value="1"'+(P.phase==1?' selected':'')+'>B: เปิดเล็ก 1 ห้องตรวจก่อน</option></select>'}
@@ -481,7 +512,8 @@ function buildCtrl(){
     else if(t==='num'){h+='<input type="text" inputmode="numeric" data-num="1" data-k="'+k+'" value="'+fmt(P[k])+'">'}
     else if(t==='pct'){h+='<input type="number" step="1" min="1" max="100" data-k="'+k+'" data-pct="1" value="'+Math.round(P[k]*100)+'">'}
     else if(t==='range'){h+='<input type="range" min="50" max="100" step="1" data-k="rampEnd" value="'+Math.round(P.ramp[11]*100)+'"><span class="rv" id="rampv">'+Math.round(P.ramp[11]*100)+'%</span>'}
-    w.innerHTML=h;box.appendChild(w)});
+    const tg=CTAG[k];if(tg)h=h.replace('</label>','<span class="ttag '+tg[0]+'">'+tg[1]+'</span></label>');
+    w.innerHTML=h;box.appendChild(w)})});
   box.querySelectorAll('[data-k]').forEach(el=>el.oninput=()=>{
     const k=el.dataset.k;let v=el.dataset.num?(+el.value.replace(/[^\d.]/g,'')||0):+el.value;
     if(k==='rampEnd'){const s=v/100/DEF.ramp[11];P.ramp=DEF.ramp.map(x=>Math.min(1,x*s));$('#rampv').textContent=v+'%'}
@@ -489,7 +521,7 @@ function buildCtrl(){
     store.set('P2',P);run()});
   box.querySelectorAll('[data-num]').forEach(el=>el.onblur=()=>{el.value=fmt(+el.value.replace(/[^\d.]/g,'')||0)});
 }
-$('#reset').onclick=()=>{P=JSON.parse(JSON.stringify(DEF));store.set('P2',P);buildCtrl();run()};
+$('#reset').onclick=()=>applyScn(0);
 
 function stat(l,v,cls,box){return '<div class="card stat '+(box||'')+'"><div class="l">'+l+'</div><div class="v '+(cls||'')+'">'+v+'</div></div>'}
 function lineChart(el,vals,labels,opt){
@@ -502,12 +534,14 @@ function lineChart(el,vals,labels,opt){
   if(opt.bars){vals.forEach((v,i)=>{const bw=(W-pl-pr)/vals.length*.6;s+='<rect x="'+(X(i)-bw/2)+'" y="'+Math.min(Y(v),Y(0))+'" width="'+bw+'" height="'+Math.abs(Y(v)-Y(0))+'" fill="#3A7D68"><title>'+labels[i]+': '+v+'</title></rect>'})}
   else{s+='<polyline fill="none" stroke="#245B4A" stroke-width="2.5" points="'+vals.map((v,i)=>X(i)+','+Y(v)).join(' ')+'"/>';
     vals.forEach((v,i)=>s+='<circle cx="'+X(i)+'" cy="'+Y(v)+'" r="3.5" fill="'+(v<0?'#B91C1C':'#15803D')+'"><title>'+labels[i]+': '+fmt(v)+' บาท</title></circle>');
-    const k=vals.indexOf(Math.min(...vals));if(vals[k]<0)s+='<text x="'+X(k)+'" y="'+(Y(vals[k])+20)+'" font-size="13" text-anchor="middle" fill="#B91C1C" font-weight="600">ต่ำสุด '+fm(vals[k])+'</text>'}
+    const k=vals.indexOf(Math.min(...vals));if(vals[k]<0){const an=k>vals.length*.75?'end':k<vals.length*.25?'start':'middle';s+='<text x="'+X(k)+'" y="'+(Y(vals[k])+20)+'" font-size="13" text-anchor="'+an+'" fill="#B91C1C" font-weight="600">ต่ำสุด '+fm(vals[k])+'</text>';}}
   el.innerHTML=s+'</svg>';
 }
 function run(){
   const m=model(P),s=summary(m);
-  $('#finStats').innerHTML=stat('เงินที่ต้องเตรียมสูงสุด',fm(-s.peak),'bad')+stat('เดือนแรกที่มีกำไร',s.be?mlabel(s.be.i):'เกิน 24 เดือน')+stat('ผลปี 2570',fm(s.y1),s.y1<0?'bad':'')+stat('ผลปี 2571',fm(s.y2),s.y2<0?'bad':'');
+  const ss=(l,v,cls,sub)=>'<div class="card stat"><div class="l">'+l+'</div><div class="v '+(cls||'')+'">'+v+'</div><div class="sub">'+sub+'</div></div>';
+  $('#finStats').innerHTML=ss('เงินที่ต้องเตรียมสูงสุด',fm(-s.peak),'bad','จุดต่ำสุดของเงินสดสะสม = เงินสำรองที่ต้องมี')+ss('เดือนแรกที่มีกำไร',s.be?mlabel(s.be.i):'เกิน 24 เดือน','','เดือนแรกหลังเปิด IPD ที่รายรับ > รายจ่าย')+ss('ผลปี 2570',fm(s.y1),s.y1<0?'bad':'','กำไร/ขาดทุนโครงการทั้งปี')+ss('ผลปี 2571',fm(s.y2),s.y2<0?'bad':'','ปีแรกที่ รพ. และ Villa เปิดเต็มปี');
+  drawScn();drawScnTable();
   lineChart($('#chart'),m.map(x=>x.cum),m.map(x=>mlabel(x.i)),{title:'เงินสดสะสม',step:2e6,tick:t=>(t/1e6)+' ล.'});
   let q='<tr><th>ไตรมาส</th><th class="n">ผู้พักปลายไตรมาส</th><th class="n">รายได้</th><th class="n">ค่าใช้จ่าย</th><th class="n">กำไร/ขาดทุน</th><th class="n">เงินสดสะสม</th></tr>';
   for(let k=0;k<8;k++){const g=m.slice(k*3,k*3+3),r=g.reduce((a,x)=>a+x.rev,0),c=g.reduce((a,x)=>a+x.cost,0);
@@ -923,7 +957,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')$('#modal').classLis
 buildCtrl();drawTasks();run();show('sum');
 
 // ---------- mobile: label table cells ----------
-const MC=['tt','rep','merge','opt','st','qt'];
+const MC=['tt','rep','merge','opt','st','qt','scnTable'];
 function labelTables(){
  MC.concat(['kt']).forEach(id=>{const t=document.getElementById(id);if(!t)return;
   if(id!=='kt')t.classList.add('mc');

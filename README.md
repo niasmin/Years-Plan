@@ -22,7 +22,7 @@
 | แผนปฏิบัติการเปิดคลินิกแพทย์ + กายภาพบำบัด (อาคารสำนักงานหน้า รพ.) + เอกสารกำกับ D1–D15 | https://claude.ai/artifact/Y6qCXiZmFgq3fGQpcUtXdt | doc fbdbb88a-bdbb-4828-89da-637f6966d85b · แท็บหลัก f1e81c01-c1ea (body 296f9625-1e9f) · ขั้น1 2dd6b2f6-6a94 · ขั้น2 633baa5e-1dc6 · ขั้น3 b97cc8c4-fbac · ขั้น4 55568b7f-fb8e |
 | แผนการตลาดปี 2570 — CMNH | https://claude.ai/artifact/Pow42rGbgsqg8HGQ13Wqwj | doc b8b69328-8672-4180-8387-f1a373ee030e · tab caea6ecd-cf01 |
 | CEO Dashboard (เวอร์ชันเผยแพร่) | https://claude.ai/artifact/8p5UQLFBkPm6dujUWhqYGD | slug 3f42af1e-5be9-4714-9317-89e76ce151ae |
-| Slides | — | slug 77258760-7d0a-4724-836c-ba4e33cc2b3d |
+| Slides (15 หน้า อัปเดต 10 พ.ย. 69) | https://claude.ai/artifact/FiLd8EzmB2fdjseddGZywr | slug 77258760-7d0a-4724-836c-ba4e33cc2b3d |
 
 ดาวน์โหลดเอกสารเป็น Markdown/Word ได้จากเมนู Export ของแต่ละเอกสาร แล้ววางใน `docs/`
 

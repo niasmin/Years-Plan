@@ -91,6 +91,7 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
 .filters button:active,.chip:active,.btn:active,.mtools button:active{transform:translateY(2px);box-shadow:inset 0 1px 3px rgba(0,0,0,.25)}
 .filters button.on,.chip.on{color:#F6EBCB;border-color:#163A2F;text-shadow:0 -1px 0 rgba(0,0,0,.5);background:linear-gradient(#24584A,#2F6B57);box-shadow:inset 0 2px 4px rgba(0,0,0,.45),0 1px 0 rgba(255,255,255,.7);transform:translateY(2px)}
 .btn{border-radius:7px}
+.mixw{grid-column:1/-1}.mixg{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.mixi{display:flex!important;flex-direction:column;gap:2px}.mixi input{width:100%}@media(max-width:640px){.mixg{grid-template-columns:repeat(3,1fr)}}
 .scn{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}.scn .filters{margin:0}.cgh{grid-column:1/-1;display:flex;align-items:center;gap:10px;margin:6px 0 -2px;font-weight:700;color:#20392F}.cgh::after{content:"";flex:1;height:1px;background:#D8CBAE}.cgh:first-child{margin-top:0}.ttag{display:inline-block;font-size:11px;font-weight:600;padding:0 6px;border-radius:4px;margin-left:6px;vertical-align:1px}.ttag.real{color:#1E6B3A;border:1px solid #3A7D58}.ttag.asm{color:#9A4A0B;border:1px solid #B8742F}.ttag.plan{color:#36506B;border:1px solid #6B86A3}.stat .sub{font-size:12px;color:var(--mute);margin-top:2px;line-height:1.4}#scnTable td:first-child{cursor:pointer;color:#20392F;text-decoration:underline dotted}
 .pbtn{flex:0 0 auto;font:inherit;font-size:13px;font-weight:600;cursor:pointer;color:#3B2A08;padding:4px 12px;border-radius:7px;border:1px solid #8A6526;background:linear-gradient(#F7E7B8,#CFA24F);box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 2px 0 #7A5A20,0 3px 5px rgba(0,0,0,.35);text-shadow:0 1px 0 rgba(255,255,255,.5)}
 .pbtn:active{transform:translateY(2px);box-shadow:inset 0 1px 3px rgba(0,0,0,.35)}
@@ -390,6 +391,10 @@ h4.jdg{margin:18px 0 6px;color:var(--brand)}table.jdh{margin:8px 0;box-shadow:no
   <h3>เทียบสถานการณ์ (คำนวณจากค่าเริ่มต้น)</h3>
   <p class="note" style="margin-top:-4px">ใช้ตอบคำถาม "ถ้า…จะเป็นอย่างไร" ในห้องประชุม · กดชื่อสถานการณ์เพื่อโหลดค่าขึ้นด้านบน</p>
   <div class="scroll"><table id="scnTable"></table></div>
+  <h3>ที่มาของรายได้ (ตามค่าที่เลือกด้านบน)</h3>
+  <p class="note" style="margin-top:-4px">ค่าเริ่มต้นมีรายได้จากค่าเตียงทางเดียว แถวที่เป็น 0 คือรายได้ที่ยังไม่มีประมาณการ</p>
+  <div class="scroll"><table id="revTable"></table></div>
+  <details class="card" style="margin-top:10px"><summary>ราคาค่าห้องและการคิดจำนวนผู้พัก</summary><div id="revHow"></div></details>
   <h3>สรุปรายไตรมาส (บาท)</h3>
   <div class="scroll"><table id="qt"></table></div>
   <h3>ค่าใช้จ่ายตอนเปิดเต็ม (ต่อเดือน)</h3>
@@ -443,6 +448,16 @@ function show(id){document.querySelectorAll('section').forEach(s=>s.classList.to
 // ---------- model (same as Excel sheet แผนรายเดือน 2570-71)
 const C={ipdPrice:[47200,49400,51600],villaPrice:[75000,79000,82000],opdWage:822000,ipdFixed:887000,villaFixed:105000,naWage:15000,ipdFull:37,villaFull:12,facility:180000,util:200000,varPer:10000};
 const DEF={phase:0,opdSmall:386000,clinicOpen:1,clinicCost:302000,clinicReno:200000,clinicRev:0,opdOpen:10,ipdOpen:10,villaOpen:11,pre:1,tier:1,opdRev:0,addon:0,minI:21,minV:3,utilShare:.5,loan:901174,loanStart:10,churn:.04,conv:.25,ramp:[.15,.25,.35,.45,.55,.62,.68,.73,.77,.80,.82,.85]};
+// ราคาค่าห้อง/เดือน จากชีต "ราคาแพ็กเกจ" [กลุ่มอาการ][ระดับราคา 1-3]
+const MIXG=['ผู้สูงอายุ','Alzheimer','Rehabilitation','Feeding','T.Tube'];
+const PR={common:[[45000,47000,49000],[45000,47000,49000],[49000,52000,54000],[58000,59000,62000],[62500,65000,68000]],
+ double:[[52000,55000,58000],[52000,55000,58000],[59000,65000,67000],[68000,70000,75000],[72000,78000,82000]],
+ single:[[65000,67000,69000],[65000,67000,69000],[72000,75000,78000],[78000,80000,82000],[82500,85000,87000]],
+ villa:[[75000,79000,82000],[75000,79000,82000],[85000,89000,92000],[92500,95000,97000],[97000,99000,101000]]};
+DEF.mix=[100,0,0,0,0];
+function mixW(p){const m=(p.mix||DEF.mix).map(x=>Math.max(0,+x||0)),t=m.reduce((a,b)=>a+b,0);return t>0?m.map(x=>x/t):[1,0,0,0,0]}
+function ipdP(p){const w=mixW(p),t=p.tier-1;return w.reduce((a,x,g)=>a+x*(38*PR.common[g][t]+10*PR.double[g][t]+2*PR.single[g][t])/50,0)}
+function villaP(p){const w=mixW(p),t=p.tier-1;return w.reduce((a,x,g)=>a+x*PR.villa[g][t],0)}
 let P=Object.assign({},DEF,store.get('P2',{}));
 function model(p){
   const out=[];let cum=0,prevRes=0;
@@ -450,7 +465,8 @@ function model(p){
     const mi=Math.max(0,i-p.ipdOpen+1),mv=Math.max(0,i-p.villaOpen+1);
     const oi=mi?p.ramp[Math.min(12,mi)-1]:0,ov=mv?p.ramp[Math.min(12,mv)-1]:0;
     const ri=Math.round(50*oi),rv=Math.round(20*ov),rt=ri+rv;
-    const rev=ri*C.ipdPrice[p.tier-1]+rv*C.villaPrice[p.tier-1]+rt*p.addon+(i>=p.opdOpen?p.opdRev:0);
+    const ipdR=ri*ipdP(p),vilR=rv*villaP(p),addR=rt*p.addon,opdR=i>=p.opdOpen?p.opdRev:0;
+    const rev=ipdR+vilR+addR+opdR;
     const clin=i>=p.clinicOpen&&i<p.opdOpen;
     const actI=i>=p.ipdOpen-p.pre,actV=i>=p.villaOpen-p.pre,actO=i>=p.opdOpen-p.pre;
     const hi=actI?Math.max(p.minI,Math.ceil(C.ipdFull*oi-1e-9)):0,hv=actV?Math.max(p.minV,Math.ceil(C.villaFull*ov-1e-9)):0;
@@ -459,7 +475,7 @@ function model(p){
     const rv2=rev+(clin?p.clinicRev:0);const net=rv2-cost;cum+=net;
     const adm=i===1?rt:Math.max(0,rt-prevRes)+Math.round(prevRes*p.churn);
     const lead=Math.ceil(adm/p.conv-1e-9);
-    out.push({i,oi,ov,ri,rv,rt,rev:rv2,cost,net,cum,hi,hv,adm,lead});prevRes=rt;
+    out.push({i,oi,ov,ri,rv,rt,rev:rv2,cost,net,cum,hi,hv,adm,lead,ipdR,vilR,addR,opdR,clinR:clin?p.clinicRev:0});prevRes=rt;
   }
   return out;
 }
@@ -477,23 +493,43 @@ const CTRL=[
  ['clinicOpen','เดือนเปิดคลินิกอาคารหน้า รพ.','month'],['clinicRev','รายได้คลินิกหน้า รพ./เดือน (เท่าทุน 302,000)','num'],['opdOpen','เดือนย้ายคลินิกเข้า รพ. (OPD)','month'],['ipdOpen','เดือนเปิด IPD','month'],['villaOpen','เดือนเปิด Villa','month'],
  ['tier','ระดับราคา','tier'],['opdRev','รายได้ OPD รพ./เดือน (คุ้มตัวเอง 1,100,000)','num'],
  ['addon','รายได้แพ็กเกจเสริม ต่อผู้พัก/เดือน (บาท)','num'],['loan','ค่าผ่อนธนาคาร ต่อเดือน (บาท)','num'],
- ['rampEnd','อัตราเข้าพักเป้าหมาย (หลัง 12 เดือน)','range'],['conv','อัตราปิดการขาย','pct'],['churn','ผู้พักออก ต่อเดือน','pct']];
-const CGRP=[['เวลา',['clinicOpen','opdOpen','ipdOpen','villaOpen']],['รายได้ (ยังไม่มีประมาณการ ค่าเริ่มต้น = 0)',['clinicRev','opdRev','addon','tier']],['ต้นทุน',['loan']],['การขายและการเข้าพัก',['rampEnd','conv','churn']]];
-const CTAG={clinicOpen:['plan','แผน'],opdOpen:['plan','แผน'],ipdOpen:['asm','รอวันส่งมอบ DG'],villaOpen:['plan','แผน'],clinicRev:['asm','สมมติ'],opdRev:['asm','สมมติ'],addon:['asm','สมมติ'],tier:['real','ราคาจากไฟล์'],loan:['asm','สมมติ 6% 15 ปี'],rampEnd:['asm','สมมติ'],conv:['asm','สมมติ'],churn:['asm','สมมติ']};
+ ['mix','สัดส่วนกลุ่มอาการผู้พัก (%) · ใช้ทั้ง IPD และ Villa','mix'],['rampEnd','อัตราเข้าพักเป้าหมาย (หลัง 12 เดือน)','range'],['conv','อัตราปิดการขาย','pct'],['churn','ผู้พักออก ต่อเดือน','pct']];
+const CGRP=[['เวลา',['clinicOpen','opdOpen','ipdOpen','villaOpen']],['รายได้ (ยังไม่มีประมาณการ ค่าเริ่มต้น = 0)',['clinicRev','opdRev','addon','tier','mix']],['ต้นทุน',['loan']],['การขายและการเข้าพัก',['rampEnd','conv','churn']]];
+const CTAG={clinicOpen:['plan','แผน'],opdOpen:['plan','แผน'],ipdOpen:['asm','รอวันส่งมอบ DG'],villaOpen:['plan','แผน'],clinicRev:['asm','สมมติ'],opdRev:['asm','สมมติ'],addon:['asm','สมมติ'],tier:['real','ราคาจากไฟล์'],mix:['asm','สมมติ · ค่าเริ่มต้นตรงกับ Excel'],loan:['asm','สมมติ 6% 15 ปี'],rampEnd:['asm','สมมติ'],conv:['asm','สมมติ'],churn:['asm','สมมติ']};
 const SCN=[['แย่สุด: รายได้ใหม่ = 0',{},'ค่าเริ่มต้น คลินิก OPD และแพ็กเกจไม่มีรายได้เลย มีแค่ค่าเตียง'],
  ['คลินิกเท่าทุน',{clinicRev:302000},'คลินิกหน้า รพ. มีรายได้เท่าค่าใช้จ่าย 302,000/เดือน'],
  ['คลินิก + OPD เท่าทุน',{clinicRev:302000,opdRev:1100000},'คลินิกเท่าทุน และ OPD รพ. มีรายได้คุ้มค่าจ้างและค่าสถานที่ 1,100,000/เดือน'],
  ['คลินิก + OPD + แพ็กเกจ',{clinicRev:302000,opdRev:1100000,addon:17300},'เพิ่มแพ็กเกจเฉลี่ย 17,300 บาท/ผู้พัก (ราว 1 ใน 5 ซื้อ Post Stroke)'],
  ['ราคาขายระดับ 3',{tier:3},'รายได้ใหม่ = 0 แต่ใช้ราคาเตียงระดับ 3'],
+ ['ผู้พักเป็นเคส Rehab ทั้งหมด',{mix:[0,0,100,0,0]},'รายได้ใหม่ = 0 แต่ทุกเตียงคิดราคากลุ่ม Rehabilitation (รวมกายภาพ PTA 6 ครั้ง/สัปดาห์)'],
  ['รพ. เลื่อนเปิด ธ.ค. 70',{ipdOpen:12,opdOpen:12,villaOpen:13},'IPD และ OPD เปิด ธ.ค. 70 · Villa ม.ค. 71 · รายได้ใหม่ = 0']];
 const SKEYS=['clinicRev','opdRev','addon','tier','ipdOpen','opdOpen','villaOpen'];
 function scnP(o){return Object.assign(JSON.parse(JSON.stringify(DEF)),o)}
-function scnMatch(){return SCN.findIndex(([,o])=>{const q=scnP(o);return SKEYS.every(k=>P[k]===q[k])&&P.loan===DEF.loan&&P.conv===DEF.conv&&P.churn===DEF.churn&&P.ramp[11]===DEF.ramp[11]&&P.clinicOpen===DEF.clinicOpen})}
+function scnMatch(){return SCN.findIndex(([,o])=>{const q=scnP(o);return SKEYS.every(k=>P[k]===q[k])&&P.loan===DEF.loan&&P.conv===DEF.conv&&P.churn===DEF.churn&&P.ramp[11]===DEF.ramp[11]&&P.clinicOpen===DEF.clinicOpen&&JSON.stringify(mixW(P))===JSON.stringify(mixW(q))})}
 function applyScn(i){P=scnP(SCN[i][1]);store.set('P2',P);buildCtrl();run()}
 function drawScn(){const m=scnMatch();
-  $('#scn').innerHTML=SCN.slice(0,4).map(([n],i)=>'<button class="'+(i===m?'on':'')+'" data-i="'+i+'">'+n+'</button>').join('')+(m<0?'<button class="on" disabled>ปรับเอง</button>':'');
+  $('#scn').innerHTML=SCN.slice(0,4).map(([n],i)=>'<button class="'+(i===m?'on':'')+'" data-i="'+i+'">'+n+'</button>').join('')+(m<0?'<button class="on" disabled>ปรับเอง</button>':m>=4?'<button class="on" disabled>'+SCN[m][0]+'</button>':'');
   $('#scn').querySelectorAll('button[data-i]').forEach(b=>b.onclick=()=>applyScn(+b.dataset.i));
   $('#scnNote').textContent=m>=0?SCN[m][2]:'ค่าที่ปรับเองไม่ตรงกับสถานการณ์สำเร็จรูป · กดสถานการณ์ด้านบนเพื่อกลับ';
+}
+function drawRev(m){
+  const y1=m.slice(0,12),y2=m.slice(12),last=m[23],S=(a,k)=>a.reduce((t,x)=>t+x[k],0);
+  const rows=[['ค่าเตียง IPD 50 เตียง','ipdR','จำนวนผู้พัก × '+fmt(ipdP(P))+' บาท'],['ค่าห้อง Villa 20 ห้อง','vilR','จำนวนผู้พัก × '+fmt(villaP(P))+' บาท'],['คลินิกหน้า รพ. (ก่อนย้ายเข้า)','clinR',P.clinicRev?fmt(P.clinicRev)+'/เดือน':'ยังไม่มีประมาณการ (คุ้มทุน 302,000)'],['OPD รพ.','opdR',P.opdRev?fmt(P.opdRev)+'/เดือน':'ยังไม่มีประมาณการ (คุ้มตัวเอง 1,100,000)'],['แพ็กเกจเสริม','addR',P.addon?fmt(P.addon)+'/ผู้พัก/เดือน':'ยังไม่มีประมาณการ (ราคา Post Stroke 69,000–125,000)']];
+  const c=v=>'<td class="n">'+(v?fmt(v):'<span class="note">0</span>')+'</td>';
+  let h='<tr><th>แหล่งรายได้</th><th class="n">ปี 2570</th><th class="n">ปี 2571</th><th class="n">ต่อเดือนตอนเต็ม ('+mlabel(24)+')</th><th>คิดอย่างไร</th></tr>';
+  rows.forEach(([n,k,how])=>{h+='<tr><td>'+n+'</td>'+c(S(y1,k))+c(S(y2,k))+c(last[k])+'<td class="note">'+how+'</td></tr>'});
+  h+='<tr><th>รายได้รวม</th><th class="n">'+fmt(S(y1,'rev'))+'</th><th class="n">'+fmt(S(y2,'rev'))+'</th><th class="n">'+fmt(last.rev)+'</th><th></th></tr>';
+  h+='<tr><td>ค่าใช้จ่ายรวม</td><td class="n">'+fmt(S(y1,'cost'))+'</td><td class="n">'+fmt(S(y2,'cost'))+'</td><td class="n">'+fmt(last.cost)+'</td><td class="note">ค่าจ้างตามใบอนุญาต ค่าสถานที่ ค่าผ่อน</td></tr>';
+  const nt=[S(y1,'net'),S(y2,'net'),last.net];
+  h+='<tr><th>กำไร/ขาดทุน</th>'+nt.map(v=>'<th class="n '+(v<0?'neg':'pos')+'">'+fmt(v)+'</th>').join('')+'<th class="note">'+(last.net<0?'ตอนเต็มยังขาด '+fmt(-last.net)+'/เดือน ≈ '+fmt(-last.net/Math.max(1,last.rt))+' บาท/ผู้พัก':'ตอนเต็มมีกำไร')+'</th></tr>';
+  $('#revTable').innerHTML=h;
+  const t=P.tier-1;
+  $('#revHow').innerHTML='<p class="note">ราคาจากชีต "ราคาแพ็กเกจ" ระดับราคา '+P.tier+' · ค่าเตียงเฉลี่ยถ่วงตามสัดส่วนกลุ่มอาการที่เลือก</p>'
+   +'<div class="scroll"><table><tr><th>กลุ่มอาการ</th><th class="n">สัดส่วน</th><th class="n">โซนรวม (38)</th><th class="n">ห้องคู่ (10)</th><th class="n">ห้องเดี่ยว (2)</th><th class="n">เฉลี่ย IPD</th><th class="n">Villa (20)</th></tr>'
+   +MIXG.map((g,j)=>'<tr><td>'+g+'</td><td class="n">'+Math.round(mixW(P)[j]*100)+'%</td><td class="n">'+fmt(PR.common[j][t])+'</td><td class="n">'+fmt(PR.double[j][t])+'</td><td class="n">'+fmt(PR.single[j][t])+'</td><td class="n">'+fmt((38*PR.common[j][t]+10*PR.double[j][t]+2*PR.single[j][t])/50)+'</td><td class="n">'+fmt(PR.villa[j][t])+'</td></tr>').join('')
+   +'<tr><th>ที่ใช้ในโมเดล</th><th></th><th></th><th></th><th></th><th class="n">'+fmt(ipdP(P))+'</th><th class="n">'+fmt(villaP(P))+'</th></tr></table></div>'
+   +'<p class="note">จำนวนผู้พัก = เตียง × อัตราเข้าพัก · อัตราเข้าพักไต่ขึ้นทุกเดือนหลังเปิด: '+P.ramp.map(x=>Math.round(x*100)+'%').join(' → ')+' · IPD เปิด '+mlabel(P.ipdOpen)+' · Villa เปิด '+mlabel(P.villaOpen)+' · โมเดลถือว่าเก็บเงินได้ในเดือนที่ให้บริการ</p>';
+  const mi=$('#mixInfo');if(mi){const tot=(P.mix||DEF.mix).reduce((a,b)=>a+(+b||0),0);mi.innerHTML='รวม '+tot+'%'+(tot!==100?' <span class="tag warn">ไม่ครบ 100 ระบบปรับสัดส่วนให้อัตโนมัติ</span>':'')+' · ค่าเตียงเฉลี่ย IPD '+fmt(ipdP(P))+' · Villa '+fmt(villaP(P))}
 }
 function drawScnTable(){
   $('#scnTable').innerHTML='<tr><th>สถานการณ์</th><th class="n">เงินที่ต้องเตรียมสูงสุด</th><th class="n">ผลปี 2570</th><th class="n">ผลปี 2571</th><th>เดือนแรกที่มีกำไร</th></tr>'+SCN.map(([n,o],i)=>{const q=scnP(o),r=summary(model(q),q);
@@ -511,6 +547,7 @@ function buildCtrl(){
     else if(t==='tier'){h+='<select data-k="tier">'+[1,2,3].map(v=>'<option value="'+v+'"'+(P.tier==v?' selected':'')+'>ราคาขาย '+v+'</option>').join('')+'</select>'}
     else if(t==='num'){h+='<input type="text" inputmode="numeric" data-num="1" data-k="'+k+'" value="'+fmt(P[k])+'">'}
     else if(t==='pct'){h+='<input type="number" step="1" min="1" max="100" data-k="'+k+'" data-pct="1" value="'+Math.round(P[k]*100)+'">'}
+    else if(t==='mix'){w.className='mixw';h+='<div class="mixg">'+MIXG.map((g,j)=>'<label class="mixi"><span>'+g+'</span><input type="number" min="0" max="100" step="5" data-mix="'+j+'" value="'+((P.mix||DEF.mix)[j]||0)+'"></label>').join('')+'</div><div class="note" id="mixInfo"></div>'}
     else if(t==='range'){h+='<input type="range" min="50" max="100" step="1" data-k="rampEnd" value="'+Math.round(P.ramp[11]*100)+'"><span class="rv" id="rampv">'+Math.round(P.ramp[11]*100)+'%</span>'}
     const tg=CTAG[k];if(tg)h=h.replace('</label>','<span class="ttag '+tg[0]+'">'+tg[1]+'</span></label>');
     w.innerHTML=h;box.appendChild(w)})});
@@ -519,6 +556,7 @@ function buildCtrl(){
     if(k==='rampEnd'){const s=v/100/DEF.ramp[11];P.ramp=DEF.ramp.map(x=>Math.min(1,x*s));$('#rampv').textContent=v+'%'}
     else P[k]=el.dataset.pct?v/100:v;
     store.set('P2',P);run()});
+  box.querySelectorAll('[data-mix]').forEach(el=>el.oninput=()=>{P.mix=[...box.querySelectorAll('[data-mix]')].map(x=>Math.max(0,+x.value||0));store.set('P2',P);run()});
   box.querySelectorAll('[data-num]').forEach(el=>el.onblur=()=>{el.value=fmt(+el.value.replace(/[^\d.]/g,'')||0)});
 }
 $('#reset').onclick=()=>applyScn(0);
@@ -541,7 +579,7 @@ function run(){
   const m=model(P),s=summary(m);
   const ss=(l,v,cls,sub)=>'<div class="card stat"><div class="l">'+l+'</div><div class="v '+(cls||'')+'">'+v+'</div><div class="sub">'+sub+'</div></div>';
   $('#finStats').innerHTML=ss('เงินที่ต้องเตรียมสูงสุด',fm(-s.peak),'bad','จุดต่ำสุดของเงินสดสะสม = เงินสำรองที่ต้องมี')+ss('เดือนแรกที่มีกำไร',s.be?mlabel(s.be.i):'เกิน 24 เดือน','','เดือนแรกหลังเปิด IPD ที่รายรับ > รายจ่าย')+ss('ผลปี 2570',fm(s.y1),s.y1<0?'bad':'','กำไร/ขาดทุนโครงการทั้งปี')+ss('ผลปี 2571',fm(s.y2),s.y2<0?'bad':'','ปีแรกที่ รพ. และ Villa เปิดเต็มปี');
-  drawScn();drawScnTable();
+  drawScn();drawScnTable();drawRev(m);
   lineChart($('#chart'),m.map(x=>x.cum),m.map(x=>mlabel(x.i)),{title:'เงินสดสะสม',step:2e6,tick:t=>(t/1e6)+' ล.'});
   let q='<tr><th>ไตรมาส</th><th class="n">ผู้พักปลายไตรมาส</th><th class="n">รายได้</th><th class="n">ค่าใช้จ่าย</th><th class="n">กำไร/ขาดทุน</th><th class="n">เงินสดสะสม</th></tr>';
   for(let k=0;k<8;k++){const g=m.slice(k*3,k*3+3),r=g.reduce((a,x)=>a+x.rev,0),c=g.reduce((a,x)=>a+x.cost,0);
@@ -957,7 +995,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')$('#modal').classLis
 buildCtrl();drawTasks();run();show('sum');
 
 // ---------- mobile: label table cells ----------
-const MC=['tt','rep','merge','opt','st','qt','scnTable'];
+const MC=['tt','rep','merge','opt','st','qt','scnTable','revTable'];
 function labelTables(){
  MC.concat(['kt']).forEach(id=>{const t=document.getElementById(id);if(!t)return;
   if(id!=='kt')t.classList.add('mc');

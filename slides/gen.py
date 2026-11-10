@@ -3,7 +3,7 @@ import json, datetime
 A=[0, -0.82, -1.92, -3.03, -4.13, -5.23, -6.33, -7.43, -9.74, -12.9, -15.67, -18.13, -20.31, -22.18, -23.86, -25.42, -26.78, -28.02, -29.25, -30.4, -31.48, -32.52, -33.56, -34.59]
 # Bv = แผนใหม่ (คลินิกหน้า รพ.) เงินสดสะสม ณ สิ้นเดือน จาก CMNH_แผนการเงิน_2570-71.xlsx แถว 71
 Bv=[-0.5, -0.8, -1.11, -1.41, -1.71, -2.01, -2.31, -2.62, -4.94, -8.1, -10.88, -13.34, -15.51, -17.38, -19.06, -20.62, -21.99, -23.23, -24.46, -25.6, -26.69, -27.72, -28.76, -29.79]
-H="'Prompt', Tahoma, sans-serif"; Tx="'Noto Sans Thai', Tahoma, sans-serif"
+H="'Trirong', Georgia, serif"; Tx="'IBM Plex Sans Thai Looped', Tahoma, sans-serif"
 DARK='#17332B'; LIGHT='#F6F4EE'; BODY='#44524D'; ACC='#A85A17'; GREEN='#245B4A'; CARD='#FDFCF9'; LINE='#E2DED3'; DBG='#1E3F35'; DBODY='#C9DCD5'; ORANGE='#E39A4B'
 def sec(i,body,dark=False,foot=None,notes=''):
     bg=DBG if dark else LIGHT; col=LIGHT if dark else DARK
@@ -82,6 +82,6 @@ order=['cover','ask','year','quarters','ceo','org','gov','clinic','hosp','cash',
 for k in order: open(f'project/slides/{k}.html','w').write(S[k].strip()+'\n')
 deck={"v":4,"createdOnFiles":{"v":1,"at":datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')},"lists":"css","title":"CMNH แผนงานปี 2570 — คุยกับ CEO และทีม","order":order,
 "sections":{"s1":{"description":"เปิดด้วยมติที่ต้องการ","start":"cover"},"s2":{"description":"แผนงานและโครงสร้าง","start":"year"},"s3":{"description":"คลินิก ตัวเลขโรงพยาบาล และทางเลือก","start":"clinic"},"s4":{"description":"การขาย ความเสี่ยง และก้าวต่อไป","start":"sales"}},
-"cover":"cover","faces":{"prompt":{"family":"Prompt","href":"https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap"},"noto-sans-thai":{"family":"Noto Sans Thai","href":"https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400..700&display=swap"}},"designSystems":[]}
+"cover":"cover","faces":{"trirong":{"family":"Trirong","href":"https://fonts.googleapis.com/css2?family=Trirong:wght@500;600;700&display=swap"},"ibm-plex-sans-thai-looped":{"family":"IBM Plex Sans Thai Looped","href":"https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai+Looped:wght@400;500;600;700&display=swap"}},"designSystems":[]}
 json.dump(deck,open('project/deck.json','w'),ensure_ascii=False,indent=1)
 print('ok',len(order))

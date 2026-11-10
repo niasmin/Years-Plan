@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CMNH แผนงานปี 2570 — CEO Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai+Looped:wght@400;500;600;700&family=Trirong:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{--brand:#1F4D3E;--brand2:#2F6B57;--tint:#EFE6D2;--ink:#2B2416;--mute:#6E6350;--line:#DDD0B4;--bg:#E6DDC9;--warn:#9A5B0B;--bad:#A4161A;--good:#1E6B3A;--card:#FFFDF7;--paper:#FBF8F0;--brass1:#E9CF8E;--brass2:#B8893B;--hh:110px;
 --noise:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .09 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
@@ -12,7 +13,9 @@
 --ok:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M3 8.5l3.2 3L13 4.5' fill='none' stroke='%231E6B3A' stroke-width='2.4' stroke-linecap='round'/></svg>");
 --no:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M4 4l8 8M12 4l-8 8' fill='none' stroke='%23A4161A' stroke-width='2.4' stroke-linecap='round'/></svg>")}
 *{box-sizing:border-box}
-body{margin:0;font-family:"Noto Sans Thai","Sarabun","Leelawadee UI","Tahoma",system-ui,sans-serif;color:var(--ink);font-size:15px;line-height:1.55;
+h1,h2,h3,h4,.stat .v,.plaque b,.qcol h4,#mbox h2,.doc h3{font-family:"Trirong","Taviraj","Leelawadee UI",Georgia,serif;letter-spacing:.1px}
+h1,h2{font-weight:700}h3,h4,.stat .v{font-weight:600}
+body{margin:0;font-family:"IBM Plex Sans Thai Looped","Sarabun","Leelawadee UI","Tahoma",system-ui,sans-serif;color:var(--ink);font-size:15px;line-height:1.6;font-variant-numeric:tabular-nums;
  background:var(--noise),repeating-linear-gradient(0deg,rgba(255,255,255,.07) 0 1px,transparent 1px 3px),repeating-linear-gradient(90deg,rgba(90,70,30,.035) 0 1px,transparent 1px 3px),radial-gradient(ellipse at 50% 0,#EFE8D8,#DCD0B6 70%) fixed;background-color:var(--bg)}
 /* ---- leather cover ---- */
 header{position:sticky;top:0;z-index:6;color:#F3EBD6;padding:14px 24px 0;
@@ -1058,7 +1061,7 @@ const fname=t=>('CMNH 2570 - '+t).replace(/[\\/:*?"<>|]/g,' ').replace(/\s+/g,' 
 function printHTML(node,title,landscape){
   const c=node.cloneNode(true);freeze(node,c);c.classList.add('on');c.querySelectorAll('.mtools,#kf,#tf,.filters,#reset').forEach(e=>e.remove());
   const css=document.querySelector('style').textContent;
-  return '<!DOCTYPE html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>'+esc('CMNH 2570 · '+title)+'</title><style>'+css
+  return '<!DOCTYPE html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai+Looped:wght@400;500;600;700&family=Trirong:wght@500;600;700&display=swap" rel="stylesheet"><title>'+esc('CMNH 2570 · '+title)+'</title><style>'+css
    +'\n@page{size:A4 '+(landscape?'landscape':'portrait')+';margin:12mm}body{background:#fff!important}main.pdfmain{max-width:'+(landscape?'1100px':'820px')+';margin:0 auto;padding:16px;background:#fff!important;border:0;box-shadow:none}'
    +'.pbar{display:flex;gap:10px;align-items:center;justify-content:space-between;margin:0 0 14px}.pbar button{font:inherit;font-size:15px;padding:8px 18px;border-radius:8px;border:1px solid #1F4D3E;background:#1F4D3E;color:#fff;cursor:pointer}@media print{.pbar{display:none}}'
    +'</style></head><body class="pdf"><main class="pdfmain"><div class="pbar"><span class="note">กดพิมพ์ แล้วเลือกเครื่องพิมพ์ หรือ "บันทึกเป็น PDF"</span><button onclick="print()">🖨 พิมพ์</button></div>'

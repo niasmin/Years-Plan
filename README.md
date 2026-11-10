@@ -10,7 +10,7 @@
 | `finance/CMNH_แผนการเงิน_2570-71.xlsx` | โมเดลการเงิน 24 เดือน (≈915 สูตร, 0 error) ชีต: แผนรายเดือน 2570-71, ติดตาม KPI 2570, รายได้และจุดคุ้มทุน ฯลฯ |
 | `finance/build3.py` (+ `build.py`, `base.py`, `meta.json`) | สคริปต์ openpyxl ที่สร้างไฟล์ด้านบน แก้สมมติฐานแล้วรันใหม่ แล้วคำนวณซ้ำด้วย LibreOffice (recalc) · helper `ref()`/`d()` จับ input ด้วยคำนำหน้าป้าย · ห้ามขึ้นต้นข้อความ note ด้วย "=" |
 | `finance/CAPEX_CMNH_ฉบับแก้ไข.xlsx` | CAPEX โรงพยาบาลฉบับแก้ไข |
-| `slides/` | สไลด์สรุป 14 หน้า (Slides artifact) รัน `python3 gen.py && python3 notes.py` สร้าง `project/slides/*.html` + `deck.json` · อัปเดต 9 พ.ย. 69: เพิ่มหน้า clinic · กราฟเงินสดแผนใหม่ −29.79 เทียบแผนเดิม −34.59 · ตลาดต่างประเทศ A/B ยังต้องเลือก · **ยังไม่ได้ publish ขึ้น Slides artifact บน claude.ai** |
+| `slides/` | สไลด์สรุป 15 หน้า (Slides artifact) รัน `python3 gen.py && python3 notes.py` สร้าง `project/slides/*.html` + `deck.json` · อัปเดต 10 พ.ย. 69: โครงสร้าง CEO–MD + หน้าอำนาจอนุมัติ (DOA) · หน้า clinic · เงินสดแผนใหม่ −29.79 เทียบแผนเดิม −34.59 |
 | `docs/` | ร่างเอกสารสำหรับเรื่องค้าง 1–5, 7 (ดู `docs/README.md`) |
 | `jd-text/t-01..20.txt` | ข้อความ JD เดิม 20 ฉบับ (OCR จากไฟล์สแกน) |
 

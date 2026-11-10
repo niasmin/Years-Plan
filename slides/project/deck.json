@@ -2,7 +2,7 @@
  "v": 4,
  "createdOnFiles": {
   "v": 1,
-  "at": "2026-11-09T14:53:00Z"
+  "at": "2026-11-10T01:15:35Z"
  },
  "lists": "css",
  "title": "CMNH แผนงานปี 2570 — คุยกับ CEO และทีม",
@@ -11,8 +11,9 @@
   "ask",
   "year",
   "quarters",
-  "org",
   "ceo",
+  "org",
+  "gov",
   "clinic",
   "hosp",
   "cash",
